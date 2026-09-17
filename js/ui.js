@@ -1,4 +1,4 @@
-function dropRate(type){let s=stats(),base=.24+s.mf*.20;if(type==='elite')base+=.34;if(type==='boss')base+=.28;return Math.min(.93,base)}
+function dropRate(type){return equipmentDropRate(type)}
 function mythicChance(){return clamp(.003+stats().mf*.22,0,1)}
 function stableFloor(){return cp(G.best[G.currentDungeon]||1)}
 function offlineSafety(f){let s=stats(G.gear,G.currentDungeon,f),d=du(),dd=deep(f),incoming=Math.max(1,1.8*Math.pow(1.058,f-1)*d.diff*d.dmg*dd.dmg)*(1-s.dr)/(2.35/d.speed),heal=s.hp*s.regen,net=incoming-heal,ttl=net>0?s.hp/net:Infinity;return{s,incoming,heal,ttl,safe:ttl>=45}}

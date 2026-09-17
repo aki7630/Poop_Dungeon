@@ -4,7 +4,7 @@
 
 ## Baseline
 
-- Version: **v2.2.1**
+- Version: **v2.2.2**
 - Origin: ChatGPT Visualize prototype
 - Goal: 既存ソースを正本として差分更新し、回帰バグを避けながら育てる
 
@@ -15,6 +15,8 @@
 - 装備 / Affix / Legendary / Mythic
 - Elite / Nemesis / Boss周回
 - 装備自動評価・自動装備・自動分解
+- 装備DROP抑制（通常8% / Elite30% / Boss45% + MF補正）
+- Item Level由来の基礎性能成長を緩和し、良品の寿命を延長
 - 汚泥による装備強化・Affix再抽選
 - 特性 / FLUSH / 魂ツリー / Mastery
 - FLUSHゲージ / 魂チェックポイント / FLUSH後開始地点

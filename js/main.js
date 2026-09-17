@@ -1,3 +1,4 @@
+const renderStatsV222=renderStats;renderStats=function(){renderStatsV222();let s=stats(),cards=$('#stats-grid')?.children;if(cards&&cards[4]){let v=cards[4].querySelector('.font-semibold');if(v)v.textContent='×'+s.critMult.toFixed(2)}};
 $$('.tab').forEach(b=>b.onclick=()=>tab(b.dataset.tab));$$('.sim-speed').forEach(b=>b.onclick=()=>{G.simSpeed=Number(b.dataset.speed);renderFast();touch()});$('#auto-equip').onchange=e=>{G.autoEquip=e.target.checked;touch()};$('#auto-salvage').onchange=e=>{G.autoSalvage=Number(e.target.value);touch()};$('#equip-focus').onchange=e=>{G.equipFocus=e.target.value;touch()};$('#equip-best').onclick=equipBest;$('#salvage-low').onclick=salvageLow;$('#flush-btn').onclick=flush;$('#offline-claim').onclick=claimOffline;$('#pause-btn').onclick=()=>{G.paused=!G.paused;touch()};
 
 const LOCAL_KEY='POOP_DUNGEON_V223',LEGACY_KEYS=['POOP_DUNGEON_V220','POOP_DUNGEON_V213'];

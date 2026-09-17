@@ -4,9 +4,9 @@
 
 ## Baseline
 
-- Version: **v2.1.2**
+- Version: **v2.2.1**
 - Origin: ChatGPT Visualize prototype
-- Goal: ここからは既存ソースを基準に差分更新し、回帰バグを避けながら育てる
+- Goal: 既存ソースを正本として差分更新し、回帰バグを避けながら育てる
 
 ## Current core systems
 
@@ -17,8 +17,20 @@
 - 装備自動評価・自動装備・自動分解
 - 汚泥による装備強化・Affix再抽選
 - 特性 / FLUSH / 魂ツリー / Mastery
-- オフライン報酬
-- 擬似セーブコード
+- FLUSHゲージ / 魂チェックポイント / FLUSH後開始地点
+- 装備・汚泥などのFLUSH越し恒久保持
+- ローカル自動セーブ / 旧セーブ移行 / セーブコード
+- 最大8時間のオフライン報酬
 - ステータス詳細 / DROP履歴
 
-`index.html` と `game.js` を v2.1.2 の正式な基準ソースとして管理します。
+## Source layout
+
+- `index.html`: ゲーム画面のシェル
+- `js/data.js`: データ・状態・最終ステータス計算
+- `js/items.js`: 敵生成・装備生成・ドロップ処理
+- `js/combat.js`: 戦闘・撃破・死亡処理
+- `js/progression.js`: 装備操作・育成・FLUSH
+- `js/ui.js`: 表示・オフライン報酬
+- `js/main.js`: 起動・セーブ・メインループ
+
+`main` ブランチをプレイ可能な正式版として管理します。

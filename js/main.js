@@ -1,6 +1,7 @@
 $$('.tab').forEach(b=>b.onclick=()=>tab(b.dataset.tab));$$('.sim-speed').forEach(b=>b.onclick=()=>{G.simSpeed=Number(b.dataset.speed);renderFast();touch()});$('#auto-equip').onchange=e=>{G.autoEquip=e.target.checked;touch()};$('#auto-salvage').onchange=e=>{G.autoSalvage=Number(e.target.value);touch()};$('#equip-focus').onchange=e=>{G.equipFocus=e.target.value;touch()};$('#equip-best').onclick=equipBest;$('#salvage-low').onclick=salvageLow;$('#flush-btn').onclick=flush;$('#offline-claim').onclick=claimOffline;$('#pause-btn').onclick=()=>{G.paused=!G.paused;touch()};
 
 const LOCAL_KEY='POOP_DUNGEON_V213';
+document.title='💩 DUNGEON v2.1.3';$('#load-code').placeholder='POOPRPG213-... / POOPRPG212-... / POOPRPG211-...';
 function hash(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}
 function enc(s){let a=new TextEncoder().encode(s),b='';for(const x of a)b+=String.fromCharCode(x);return btoa(b)}
 function dec(s){let b=atob(s),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return new TextDecoder().decode(a)}

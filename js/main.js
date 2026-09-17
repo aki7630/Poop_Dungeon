@@ -1,22 +1,22 @@
 $$('.tab').forEach(b=>b.onclick=()=>tab(b.dataset.tab));$$('.sim-speed').forEach(b=>b.onclick=()=>{G.simSpeed=Number(b.dataset.speed);renderFast();touch()});$('#auto-equip').onchange=e=>{G.autoEquip=e.target.checked;touch()};$('#auto-salvage').onchange=e=>{G.autoSalvage=Number(e.target.value);touch()};$('#equip-focus').onchange=e=>{G.equipFocus=e.target.value;touch()};$('#equip-best').onclick=equipBest;$('#salvage-low').onclick=salvageLow;$('#flush-btn').onclick=flush;$('#offline-claim').onclick=claimOffline;$('#pause-btn').onclick=()=>{G.paused=!G.paused;touch()};
 
-const LOCAL_KEY='POOP_DUNGEON_V213';
-document.title='💩 DUNGEON v2.1.3';$('#load-code').placeholder='POOPRPG213-... / POOPRPG212-... / POOPRPG211-...';
+const LOCAL_KEY='POOP_DUNGEON_V220',LEGACY_KEYS=['POOP_DUNGEON_V213'];
+document.title='💩 DUNGEON v2.2.0';$('#load-code').placeholder='POOPRPG220-... / POOPRPG213-...';
 function hash(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)}
 function enc(s){let a=new TextEncoder().encode(s),b='';for(const x of a)b+=String.fromCharCode(x);return btoa(b)}
 function dec(s){let b=atob(s),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return new TextDecoder().decode(a)}
 function snapshotState(){let snap=JSON.parse(JSON.stringify(G));snap.paused=false;snap.enemy=null;snap.deadUntil=0;return snap}
-function payloadNow(){return{v:213,t:Date.now(),g:snapshotState()}}
-function saveLocal(){try{localStorage.setItem(LOCAL_KEY,JSON.stringify(payloadNow()));return true}catch(e){return false}}
-function loadLocalPayload(){try{let raw=localStorage.getItem(LOCAL_KEY);if(!raw)return null;let p=JSON.parse(raw);if(!p||typeof p!=='object'||!p.g)throw Error('自動セーブ形式が不正');return p}catch(e){try{localStorage.removeItem(LOCAL_KEY)}catch{}return null}}
-function applyPayload(p){let candidate=normalize(p?.g);candidate.paused=false;candidate.deadUntil=0;candidate.enemy=null;G=candidate;G.hp=stats().hp;spawn();let elapsed=Math.max(0,(Date.now()-num(p?.t,Date.now()))/1000);offlineRewards(elapsed);return elapsed}
+function payloadNow(){return{v:220,t:Date.now(),g:snapshotState()}}
+function saveLocal(){try{localStorage.setItem(LOCAL_KEY,JSON.stringify(payloadNow()));for(const k of LEGACY_KEYS)localStorage.removeItem(k);return true}catch(e){return false}}
+function loadLocalPayload(){try{let raw=localStorage.getItem(LOCAL_KEY);if(!raw){for(const k of LEGACY_KEYS){raw=localStorage.getItem(k);if(raw)break}}if(!raw)return null;let p=JSON.parse(raw);if(!p||typeof p!=='object'||!p.g)throw Error('自動セーブ形式が不正');return p}catch(e){return null}}
+function applyPayload(p){let candidate=normalize(p?.g);candidate.paused=false;candidate.deadUntil=0;candidate.enemy=null;G=candidate;ensureV22State();G.hp=stats().hp;spawn();let elapsed=Math.max(0,(Date.now()-num(p?.t,Date.now()))/1000);offlineRewards(elapsed);return elapsed}
 
-$('#save-btn').onclick=()=>{let body=JSON.stringify(payloadNow());$('#save-code').value='POOPRPG213-'+enc(JSON.stringify({body,sig:hash(body)}));$('#save-status').textContent='保存コード生成完了。自動セーブも有効です。'};
-$('#load-btn').onclick=()=>{try{let c=$('#load-code').value.trim(),prefix=c.startsWith('POOPRPG213-')?'POOPRPG213-':c.startsWith('POOPRPG212-')?'POOPRPG212-':c.startsWith('POOPRPG211-')?'POOPRPG211-':null;if(!prefix)throw Error('対応コードではありません');let env=JSON.parse(dec(c.slice(prefix.length)));if(!env||typeof env.body!=='string'||hash(env.body)!==env.sig)throw Error('コード破損');let p=JSON.parse(env.body),candidate=normalize(p.g),elapsed=Math.max(0,(Date.now()-num(p.t,Date.now()))/1000);candidate.paused=false;candidate.deadUntil=0;candidate.enemy=null;G=candidate;G.hp=stats().hp;spawn();offlineRewards(elapsed);saveLocal();$('#save-status').textContent=prefix==='POOPRPG213-'?'ロード成功。':prefix==='POOPRPG212-'?'v2.1.2から移行してロード成功。':'v2.1.1から移行してロード成功。';touch()}catch(e){$('#save-status').textContent='ロード失敗：'+e.message}};
-$('#reset-btn').onclick=()=>{if(typeof confirm==='function'&&!confirm('本当に全初期化しますか？'))return;try{localStorage.removeItem(LOCAL_KEY)}catch{}G=fresh();G.hp=stats().hp;spawn();$('#save-code').value='';$('#load-code').value='';$('#save-status').textContent='初期化しました。';touch()};
+$('#save-btn').onclick=()=>{let body=JSON.stringify(payloadNow());$('#save-code').value='POOPRPG220-'+enc(JSON.stringify({body,sig:hash(body)}));$('#save-status').textContent='保存コード生成完了。自動セーブも有効です。'};
+$('#load-btn').onclick=()=>{try{let c=$('#load-code').value.trim(),prefix=['POOPRPG220-','POOPRPG213-','POOPRPG212-','POOPRPG211-'].find(p=>c.startsWith(p));if(!prefix)throw Error('対応コードではありません');let env=JSON.parse(dec(c.slice(prefix.length)));if(!env||typeof env.body!=='string'||hash(env.body)!==env.sig)throw Error('コード破損');let p=JSON.parse(env.body),candidate=normalize(p.g),elapsed=Math.max(0,(Date.now()-num(p.t,Date.now()))/1000);candidate.paused=false;candidate.deadUntil=0;candidate.enemy=null;G=candidate;ensureV22State();G.hp=stats().hp;spawn();offlineRewards(elapsed);saveLocal();$('#save-status').textContent=prefix==='POOPRPG220-'?'ロード成功。':'旧バージョンからv2.2.0へ移行してロード成功。';touch()}catch(e){$('#save-status').textContent='ロード失敗：'+e.message}};
+$('#reset-btn').onclick=()=>{if(typeof confirm==='function'&&!confirm('本当に全初期化しますか？'))return;try{localStorage.removeItem(LOCAL_KEY);for(const k of LEGACY_KEYS)localStorage.removeItem(k)}catch{}G=fresh();ensureV22State();G.hp=stats().hp;spawn();$('#save-code').value='';$('#load-code').value='';$('#save-status').textContent='初期化しました。';touch()};
 
-let autoLoaded=false,startupElapsed=0,startup=loadLocalPayload();if(startup){try{startupElapsed=applyPayload(startup);autoLoaded=true}catch(e){G=fresh();try{localStorage.removeItem(LOCAL_KEY)}catch{}}}
-if(!autoLoaded){G.hp=stats().hp;spawn()}
+let autoLoaded=false,startupElapsed=0,startup=loadLocalPayload();if(startup){try{startupElapsed=applyPayload(startup);autoLoaded=true;saveLocal()}catch(e){G=fresh()}}
+if(!autoLoaded){ensureV22State();G.hp=stats().hp;spawn()}
 renderFast();renderStatic();if(autoLoaded)$('#save-status').textContent='自動セーブを復元しました'+(startupElapsed>=60?' / 放置報酬を計算済み':'')+'。';
 
 let saveT=0,hiddenAt=0;

@@ -8,6 +8,13 @@
 - Origin: ChatGPT Visualize prototype
 - Goal: 既存ソースを正本として差分更新し、回帰バグを避けながら育てる
 
+## Project documents
+
+- `README.md` — プロジェクト入口と現在の概要
+- `CHANGELOG.md` — バージョンごとのパッチノート
+- `SPEC.md` — 現在のゲーム仕様
+- `DECISIONS.md` — 設計判断・理由・既知の注意点
+
 ## Current core systems
 
 - 完全自動戦闘 / Boss周回 / 最大8時間のオフライン報酬

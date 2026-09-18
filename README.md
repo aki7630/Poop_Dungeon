@@ -4,7 +4,7 @@
 
 ## Baseline
 
-- Version: **v2.2.3**
+- Version: **v2.2.4**
 - Origin: ChatGPT Visualize prototype
 - Goal: 既存ソースを正本として差分更新し、回帰バグを避けながら育てる
 
@@ -19,7 +19,10 @@
 - 新Affix：痛撃 / 初撃 / 連撃 / 吸収 / 堅牢 / 反撃 / 癒撃 / 底力
 - 旧Boss/Elite特攻AffixはLegacy品として既存装備のみ保持
 - Elite / Nemesis / Boss周回
-- 装備自動評価・自動装備・自動分解
+- 装備自動評価・自動装備・Common〜Mythicまで選択可能な自動分解
+- 部位別16枠倉庫 + 武器/頭/胴/足/装具タブ
+- 装備ソート / ロック / NEW表示 / 一括分解 / 固定比較パネル
+- Affix図鑑（記録タブ）+ 最高ロール記録
 - 汚泥による装備強化・Affix再抽選
 - 特性 / FLUSH / 魂ツリー / Mastery
 - FLUSHゲージ / 魂チェックポイント / FLUSH後開始地点
@@ -38,6 +41,17 @@
 - 頭 / 足は空き枠から開始
 - 既存装備の数値と旧Affixは保持され、Legacy装備として扱われます
 - 新規ドロップだけがベース装備 / Implicit / 新Affix体系を使用します
+
+## v2.2.4 equipment management
+
+- 倉庫は5部位それぞれ16枠。満杯時の整理も同じ部位内だけで行います
+- 自動分解は OFF / Common / Rare / Epic / Legendary / Mythic 以下から選択できます
+- Legendary / Mythicも自動・手動分解可能。ロック品だけは常に保護されます
+- 部位タブごとにレア度 / Item Lv / 評価 / Affix Tier / 新着でソートできます
+- 高レアの手動分解と「未ロックを全分解」は確認を挟みます
+- Affix再抽選は対象Affixを選択できます
+- 「最適装備」は各部位の有力候補を絞って組み合わせ比較し、16枠化後も計算量を抑えます
+- Affix図鑑は記録タブへ移動し、自己最高ロールを保存します
 
 ## Source layout
 

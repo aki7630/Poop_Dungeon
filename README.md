@@ -4,7 +4,7 @@
 
 ## Baseline
 
-- Version: **v2.3.0**
+- Version: **v2.4.0**
 - Origin: ChatGPT Visualize prototype
 - Goal: 既存ソースを正本として差分更新し、回帰バグを避けながら育てる
 
@@ -17,8 +17,8 @@
 
 ## Current core systems
 
-- 完全自動戦闘 / Boss周回 / 最大8時間のオフライン報酬
-- 5ダンジョン、5部位装備（武器 / 頭 / 胴 / 足 / 装具）
+- 完全自動戦闘 / NORMAL攻略・指定階層周回 / Boss Dungeon / 最大8時間のオフライン報酬
+- 5 NORMALダンジョン（各30FでCLEAR、31F以降は無限深層）/ 共通ダンジョンLV / 5部位装備
 - 15種のベース装備 + Implicit
 - Affix / Tier I〜IV / Legendary / Mythic
 - 新Affix：痛撃 / 初撃 / 連撃 / 吸収 / 堅牢 / 反撃 / 癒撃 / 底力
@@ -28,6 +28,25 @@
 - 特性 / FLUSH / 魂ツリー / Mastery / 魂チェックポイント
 - ローカル自動セーブ / v2.1.1以降のセーブコード移行
 - Affix図鑑・最高ロール記録 / Legendary図鑑
+
+## v2.4.0 Dungeon Structure
+
+ダンジョン進行を「攻略」「安定周回」「Boss周回」に分離しました。
+
+- プレイヤー向け共通難易度指標 **ダンジョンLV** を導入
+- 5つの既存ダンジョンをすべて **NORMAL** として整理
+- NORMALは **1〜29F通常戦 → 30F Final Boss → CLEAR → 31F以降無限深層**
+- Final BossはNORMAL内では初回だけ出現し、戦闘開始時にHP全回復
+- Final Boss撃破で次のNORMALと対応する **Boss Dungeon** を解放
+- CLEAR済みNORMALは任意の到達済み階層に固定して周回可能
+- 固有Legendary / PityはNormal Final Bossから外し、Boss Dungeonへ移管
+- Boss Dungeonは毎戦HP全回復で連続再戦
+- Normal Elite率は全域8%へ統一
+- Item Lv・敵基礎能力・Gold・EXPの基準をlocal floorからダンジョンLVへ移行
+- 新規装備に取得元ダンジョン / 取得時ダンジョンLVを記録し、Affix再抽選は取得元Tier分布を参照
+- v2.3.0以前の進行状況からNORMAL CLEAR状態を自動移行
+
+現在の敵HP/攻撃のダンジョンLV成長係数は暫定値です。次のLv / Goldアップグレード再設計と合わせて本調整します。
 
 ## v2.3.0 Legendary Overhaul
 

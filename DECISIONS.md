@@ -803,18 +803,23 @@ Pre-v2.4 items lack reliable source information and therefore retain legacy-comp
 
 ---
 
+## D046 — Equipment family set bonuses are not used
+
+**Status:** Accepted
+
+同じ装備系統を2〜3部位揃えることで発動するセットボーナスは追加しない。
+
+### Why
+
+- 所属タグが個々の装備性能より強くなりやすい
+- Affix / Tier / Implicit / Legendaryの自由な組み合わせを阻害する
+- 「セット完成」が事実上の正解になりやすい
+
+装備の個性は個別Implicit・Affix・Legendary mechanic側で作る。
+
+---
+
 ## Open / Watch Items
-
-### O001 — Item source dungeon
-
-Affix rerollのTier基準が現在のDungeon依存になっている箇所があり、元DROPダンジョンをitemへ保存していない。
-
-将来的には:
-- `sourceDungeon` をitem schemaへ追加
-- migration fallback
-- reroll時にsource dungeonを参照
-
-を検討。
 
 ### O002 — Equip Best pruning
 

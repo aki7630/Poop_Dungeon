@@ -636,18 +636,200 @@ s.replace(old, () => "$$('.tab').forEach")
 
 ---
 
+## D034 — 装備系統セットボーナスは採用しない
+
+**Status:** Accepted
+
+### Decision
+
+「配管系を2部位」「腐敗系を3部位」のような、同一系統を揃えることで発動するセットボーナスは追加しない。
+
+### Why
+
+- 所属タグが個々の装備性能より強くなりやすい
+- Affix / Tier / Implicit / Legendaryの自由な組み合わせを阻害する
+- 「セットを完成させること」が事実上の正解になりやすい
+
+装備の個性は、個別Implicit・Affix・Legendary mechanic側で作る。
+
+---
+
+## D035 — ダンジョンをカテゴリ化して拡張する
+
+**Status:** Accepted
+
+### Decision
+
+将来的なダンジョンカテゴリ:
+
+- NORMAL
+- EX
+- BOSS
+- RESOURCE
+
+v2.4.0ではNORMALとBOSSの基盤を実装する。
+
+### Why
+
+NormalだけにGold / EXP / 高難度 / Boss周回など全役割を背負わせると、新しいダンジョンを追加する余地がなくなるため。
+
+---
+
+## D036 — ダンジョンLVを共通難易度尺度にする
+
+**Status:** Accepted
+
+### Decision
+
+local floorと共通難易度を分離する。
+
+```
+Dungeon LV = baseLv + localFloor - 1
+```
+
+### Why
+
+- 星間下水道1FでItem Lv 1が落ちる問題を解消
+- 異なるダンジョン間の強さを比較できる
+- 将来のEX / BOSS / RESOURCEにも同じ尺度を利用できる
+- 同じダンジョンLVでも敵特性と報酬傾向で狩場を選べる
+
+---
+
+## D037 — NORMALは30FでCLEAR、31F以降は無限深層
+
+**Status:** Accepted
+
+### Decision
+
+各NORMAL:
+
+- 1〜29F: 通常戦
+- 30F: Final Boss
+- Final Boss撃破: CLEAR
+- 31F〜: CLEAR後の無限深層
+
+### Why
+
+20Fではエリア攻略が短く感じられる一方、30Fなら序盤 / 中盤 / 深部という一つのダンジョンを踏破した感覚を作りやすい。
+
+---
+
+## D038 — NORMAL Final Bossは一度だけの関門
+
+**Status:** Accepted
+
+### Decision
+
+- 30F Final Bossは未CLEAR時だけ出現
+- Boss開始時HP全回復
+- 敗北しても30Fから再挑戦
+- CLEAR後は30FにBossを再出現させない
+
+### Why
+
+Bossを10Fごとに繰り返すと、直前Eliteに遭遇したかどうかがBoss勝敗へ強く影響し、攻略が乱数寄りになる。
+
+Final Bossを一度だけの「卒業試験」にすることで、Eliteの危険性を残しながらBossを純粋な戦力チェックに近づける。
+
+---
+
+## D039 — 攻略と安定周回を分離する
+
+**Status:** Accepted
+
+### Decision
+
+NORMALには:
+
+- `progress`: 階層を伸ばす
+- `farm`: 到達済み階層に固定して周回
+
+の2モードを持たせる。
+
+### Why
+
+放置効率では死亡ペナルティ時間が大きいため、プレイヤー自身が「死なずに倒し続けられる適正階層」を選べる必要がある。
+
+ゲーム側が自動で難易度を下げるのではなく、最終判断はプレイヤーに残す。
+
+---
+
+## D040 — Legendary周回はBoss Dungeonへ移す
+
+**Status:** Accepted
+
+### Decision
+
+NORMAL Final Boss:
+- 次エリア解放の関門
+- 固有Legendary抽選なし
+- Pityを進めない
+
+Boss Dungeon:
+- 対応NORMAL CLEARで解放
+- 何度でも再戦
+- 毎戦HP全回復
+- 固有Legendary / Pityを担当
+
+### Why
+
+Normal攻略・通常装備掘りとLegendary掘りを分離し、それぞれの目的を明確にする。
+
+---
+
+## D041 — NORMALはResource Dungeonの役割を食わない
+
+**Status:** Accepted
+
+### Decision
+
+NORMALはGold / EXP / 装備をバランスよく得られる場所とする。
+特殊化は軽度に留める。
+
+v2.4.0:
+- 黄金下水宮: Gold ×1.15 / Dungeon MF +2%
+- 星間下水道: Tier IV 12%
+
+本格的なGold / EXP / 素材効率は将来のRESOURCE Dungeonへ残す。
+
+### Why
+
+Normalの一つがGoldやEXPの絶対的最高効率になると、専用Resource Dungeonを追加する意味が薄れるため。
+
+---
+
+## D042 — Elite率はNORMAL難易度スケーリングに使わない
+
+**Status:** Accepted
+
+### Decision
+
+NORMALのElite率は全域8%固定。
+
+### Why
+
+深層ほどElite率まで上げると戦闘時間と死亡率の分散が大きくなり、「適正階層で安定周回したい」という放置ゲームの判断を乱数が壊しやすい。
+
+Elite自体の能力・種類は別アップデートで再設計する。
+
+---
+
+## D043 — Dungeon LV成長曲線はv2.4.0では暫定
+
+**Status:** Accepted temporarily
+
+### Decision
+
+v2.4.0でlocal floor依存からDungeon LV依存へ移すが、HP / ATK係数を最終値とはしない。
+
+### Why
+
+次のアップデートでプレイヤーLv・Goldアップグレードの役割と成長量を再設計する予定であり、敵側だけ先に精密調整すると二度調整になるため。
+
+---
+
 ## Open / Watch Items
-
-### O001 — Item source dungeon
-
-Affix rerollのTier基準が現在のDungeon依存になっている箇所があり、元DROPダンジョンをitemへ保存していない。
-
-将来的には:
-- `sourceDungeon` をitem schemaへ追加
-- migration fallback
-- reroll時にsource dungeonを参照
-
-を検討。
 
 ### O002 — Equip Best pruning
 

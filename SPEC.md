@@ -1,6 +1,6 @@
 # 💩 DUNGEON — SPEC
 
-Current specification for **v2.3.0**.
+Current specification for **v2.4.0**.
 
 このファイルは「現在のゲームがどう動くべきか」を記述する正本です。
 変更履歴は `CHANGELOG.md`、設計理由は `DECISIONS.md` を参照してください。
@@ -14,7 +14,7 @@ Current specification for **v2.3.0**.
 - Runtime: HTML + JavaScript
 - Battle: 完全自動
 - Canonical branch: `main`
-- Current version: **v2.3.0**
+- Current version: **v2.4.0**
 
 プレイヤーはダンジョンを選び、装備を掘り、Affix・Legendary・育成システムを組み合わせてより深い階層へ進む。
 
@@ -35,19 +35,100 @@ Current specification for **v2.3.0**.
 
 ## 3. Dungeons
 
-| ID | Name | Unlock | Tier I | Tier II | Tier III | Tier IV |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| `sewer` | 🚽 地下便所跡 | 1F | 50% | 32% | 14% | 4% |
-| `rot` | ☣️ 腐敗大聖堂 | 15F | 42% | 34% | 19% | 5% |
-| `machine` | ⚙️ 浄化機関区 | 30F | 32% | 35% | 25% | 8% |
-| `gold` | 👑 黄金下水宮 | 50F | 45% | 32% | 18% | 5% |
-| `cosmic` | 🌌 星間下水道 | 80F | 15% | 25% | 35% | 25% |
+### 3.1 Categories
 
-Affix Tier確率は**ダンジョンで決まり、装備レアリティとは独立**する。
+Current implementation:
+- **NORMAL** — main progression, stable farming, general loot
+- **BOSS** — repeatable boss fights, unique Legendary farming
 
-各ダンジョンにはAffix biasがあり、その系統が候補プールへ追加される。
+Planned extension:
+- **EX** — high-difficulty challenge dungeons
+- **RESOURCE** — Gold / EXP / material farming
 
----
+NORMAL remains the backbone of account progression. EX / BOSS / RESOURCE unlock from Normal progress.
+
+### 3.2 Dungeon LV
+
+Local floor and difficulty scale are separate.
+
+```
+dungeonLv = baseLv + localFloor - 1
+```
+
+| Normal | Base Dungeon LV | Final Boss |
+| --- | ---: | --- |
+| 🚽 地下便所跡 | 1 | 衛生主任 |
+| ☣️ 腐敗大聖堂 | 31 | 腐敗大司教 |
+| ⚙️ 浄化機関区 | 61 | 浄化機関長 |
+| 👑 黄金下水宮 | 91 | 黄金便器王 |
+| 🌌 星間下水道 | 121 | 事象排泄体 |
+
+Player-facing terminology is **ダンジョンLV**.
+
+Dungeon LV is the baseline for:
+- enemy HP
+- enemy damage
+- Gold
+- EXP
+- Item Lv
+
+The current growth coefficients are provisional and will be rebalanced with the Lv / Gold upgrade overhaul.
+
+### 3.3 NORMAL progression
+
+Each Normal:
+- 1F–29F: normal enemies + Elite
+- 30F: one-time Final Boss
+- Final Boss starts with player HP fully restored
+- Final Boss defeat marks the dungeon **CLEAR**
+- CLEAR unlocks the next Normal and the corresponding Boss Dungeon
+- 31F+ remains available as endless deep progression
+- Final Boss does not reappear in Normal after CLEAR
+
+Normal supports two modes:
+- **攻略** — advance current floor
+- **指定階層周回** — repeatedly fight on any reached floor without advancing
+
+### 3.4 Boss Dungeon
+
+- unlocked when corresponding Normal is CLEAR
+- boss-only encounter
+- every fight begins at full HP
+- repeatable indefinitely
+- unique Legendary roll and Pity occur here
+- Normal Final Boss does not roll the unique Legendary
+
+### 3.5 Normal dungeon identity
+
+Dungeon LV handles baseline difficulty. Per-dungeon multipliers only express combat identity.
+
+| Dungeon | HP | ATK | Speed | Gold | MF | Elite |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 地下便所跡 | ×1.00 | ×1.00 | ×1.00 | ×1.00 | +0% | 8% |
+| 腐敗大聖堂 | ×1.20 | ×0.95 | ×0.90 | ×1.00 | +0% | 8% |
+| 浄化機関区 | ×0.90 | ×1.00 | ×1.25 | ×1.00 | +0% | 8% |
+| 黄金下水宮 | ×1.05 | ×1.05 | ×1.00 | ×1.15 | +2% | 8% |
+| 星間下水道 | ×1.10 | ×1.08 | ×1.05 | ×1.00 | +0% | 8% |
+
+### 3.6 Affix Tier distributions
+
+| Dungeon | Tier I | Tier II | Tier III | Tier IV |
+| --- | ---: | ---: | ---: | ---: |
+| 地下便所跡 | 50% | 32% | 14% | 4% |
+| 腐敗大聖堂 | 44% | 33% | 18% | 5% |
+| 浄化機関区 | 36% | 35% | 22% | 7% |
+| 黄金下水宮 | 42% | 34% | 19% | 5% |
+| 星間下水道 | 27% | 32% | 29% | 12% |
+
+Normal intentionally leaves room above these rates for future EX rewards.
+
+### 3.7 Depth labels
+
+Deep labels remain descriptive only:
+- low Dungeon LV: 通常領域
+- higher Dungeon LV: 深層 I / II / III
+
+They no longer apply hidden HP / damage / Gold / MF / Elite multipliers.
 
 ## 4. Equipment
 
@@ -74,7 +155,17 @@ Affix Tier確率は**ダンジョンで決まり、装備レアリティとは�
 - ロック品は自動分解・一括分解・満杯時の退避候補から除外
 - 旧セーブなどで上限超過している装備は破壊しない
 
-### 4.3 Rarity
+### 4.3 Item source
+
+Newly generated gear stores:
+- `sourceDungeon`
+- `sourceDungeonLv`
+
+Item Lv is generated around Dungeon LV (±2).
+Affix reroll for newly generated gear uses the source dungeon's Tier distribution.
+Pre-v2.4 gear without source metadata keeps legacy-compatible behavior.
+
+### 4.4 Rarity
 
 | Rarity | Affix count |
 | --- | ---: |
@@ -86,7 +177,7 @@ Affix Tier確率は**ダンジョンで決まり、装備レアリティとは�
 
 固有LegendaryはLegendary rarityとして生成される。
 
-### 4.4 Base Equipment
+### 4.5 Base Equipment
 
 通常ベース装備は5部位 × 3種 = **15種**。
 
@@ -318,7 +409,7 @@ Tier内のランダム厳選は残す。
 
 ## 9. Legendary Drop
 
-固有Legendary確率:
+固有Legendary確率（Boss Dungeonのみ）:
 
 ```
 chance = 1.5% + 0.05% × pity + 0.5% × MF
@@ -330,8 +421,8 @@ chance = 1.5% + 0.05% × pity + 0.5% × MF
 0.015 + pity * 0.0005 + mf * 0.005
 ```
 
-- 成功時 Pity = 0
-- 失敗時 Pity +1
+- Boss Dungeonで成功時 Pity = 0
+- Boss Dungeonで失敗時 Pity +1
 - 各ダンジョンは1種類だけなので、成功時はそのダンジョン固有Legendary確定
 
 目安:
@@ -444,9 +535,9 @@ NEW:
 ## 15. Save
 
 Current:
-- Local key: `POOP_DUNGEON_V230`
-- Export prefix: `POOPRPG230-`
-- Payload version: `230`
+- Local key: `POOP_DUNGEON_V240`
+- Export prefix: `POOPRPG240-`
+- Payload version: `240`
 
 v2.1.1以降の対応形式を移行可能。
 

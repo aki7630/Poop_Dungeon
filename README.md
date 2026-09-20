@@ -4,7 +4,7 @@
 
 ## Baseline
 
-- Version: **v2.3.0**
+- Version: **v2.4.0**
 - Origin: ChatGPT Visualize prototype
 - Goal: 既存ソースを正本として差分更新し、回帰バグを避けながら育てる
 
@@ -17,7 +17,7 @@
 
 ## Current core systems
 
-- 完全自動戦闘 / Boss周回 / 最大8時間のオフライン報酬
+- 完全自動戦闘 / NORMAL攻略・指定階層周回 / Boss Dungeon / 最大8時間のオフライン報酬
 - 5ダンジョン、5部位装備（武器 / 頭 / 胴 / 足 / 装具）
 - 15種のベース装備 + Implicit
 - Affix / Tier I〜IV / Legendary / Mythic
@@ -28,6 +28,22 @@
 - 特性 / FLUSH / 魂ツリー / Mastery / 魂チェックポイント
 - ローカル自動セーブ / v2.1.1以降のセーブコード移行
 - Affix図鑑・最高ロール記録 / Legendary図鑑
+
+## v2.4.0 Dungeon Framework
+
+- 既存5エリアをNORMAL Dungeonとして再編
+- 各Normalは30F Final Boss撃破でCLEAR
+- CLEARで次Normal + 対応Boss Dungeon解放
+- CLEAR後は31F以降の無限深層
+- 到達済み任意階層の固定周回
+- 全コンテンツ共通尺度「ダンジョンLV」を導入
+- Boss Dungeonへ固有Legendary / Pityを移管
+- Normal Final Boss / Boss Dungeonは戦闘開始時HP全回復
+- Elite率をNormal全域8%へ統一
+- Item LvをダンジョンLV基準へ変更
+- 新規装備に取得元ダンジョン情報を保存
+
+将来のカテゴリとして **EX / BOSS / RESOURCE** を追加できる構造を前提にしています。
 
 ## v2.3.0 Legendary Overhaul
 

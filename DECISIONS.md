@@ -636,6 +636,173 @@ s.replace(old, () => "$$('.tab').forEach")
 
 ---
 
+## D034 — Existing five dungeons are NORMAL
+
+**Status:** Accepted
+
+The current five dungeons form the NORMAL progression line. Future EX / BOSS / RESOURCE content must not force NORMAL to carry every reward specialty.
+
+NORMAL is the main progression backbone and a general-purpose farming space.
+
+---
+
+## D035 — NORMAL uses 30F CLEAR structure
+
+**Status:** Accepted
+
+Each Normal has one Final Boss at 30F.
+
+- 1–29F: normal / Elite encounters
+- 30F: one-time Final Boss
+- defeat = CLEAR
+- 31F+: endless deep progression
+
+### Why
+
+20F felt too short for an area-clear arc. 30F allows early / middle / deep sections while keeping the boss as a single graduation test.
+
+---
+
+## D036 — Final Boss appears only once in NORMAL
+
+**Status:** Accepted
+
+After CLEAR, the 30F boss never reappears in Normal, including fixed-floor farming.
+
+### Why
+
+Repeated bosses interfere with stable farming and make Elite RNG before every boss feel punitive. A one-time gate preserves the achievement without repeatedly disrupting efficiency farming.
+
+---
+
+## D037 — Final Boss starts at full HP
+
+**Status:** Accepted
+
+Entering the Normal 30F Final Boss restores player HP to maximum.
+
+### Why
+
+The boss should test the build against the boss, not whether Floor 29 happened to roll a dangerous Elite.
+
+---
+
+## D038 — Boss Dungeon owns repeatable boss farming
+
+**Status:** Accepted
+
+Defeating a Normal Final Boss unlocks:
+1. the next Normal dungeon
+2. the defeated boss's Boss Dungeon
+
+Boss Dungeon:
+- boss only
+- repeatable
+- full HP every fight
+- unique Legendary / Pity live here
+
+### Why
+
+This cleanly separates main progression, safe farming, and boss-specific loot.
+
+---
+
+## D039 — Dungeon LV is the shared difficulty scale
+
+**Status:** Accepted
+
+Player-facing name: **ダンジョンLV**.
+
+```
+Dungeon LV = dungeon.baseLv + localFloor - 1
+```
+
+It becomes the common baseline for enemy stats, Gold, EXP and Item Lv across future NORMAL / EX / BOSS / RESOURCE categories.
+
+### Why
+
+Local floors can remain readable while all content shares one comparable difficulty scale.
+
+---
+
+## D040 — Dungeon multipliers represent identity, not progression
+
+**Status:** Accepted
+
+Later Normal dungeons do not receive generic `diff` multipliers simply because they are later.
+
+Dungeon LV handles progression. Dungeon HP / ATK / Speed multipliers only express character, such as:
+- Rot = tougher and slower
+- Machine = lower HP and faster
+- Gold = slightly richer
+- Cosmic = tougher all-round
+
+---
+
+## D041 — NORMAL Elite rate is fixed at 8%
+
+**Status:** Accepted
+
+Elite frequency is not a difficulty-scaling mechanism.
+
+### Why
+
+Increasing Elite rate with depth creates large variance in survival and farming efficiency. Future Elite difficulty should come from enemy mechanics rather than increasingly frequent stat spikes.
+
+---
+
+## D042 — Deep labels are descriptive
+
+**Status:** Accepted
+
+深層 I / II / III remain UI/world labels but no longer add hidden HP / damage / reward / Elite multipliers.
+
+Dungeon LV itself supplies the continuous difficulty curve.
+
+---
+
+## D043 — NORMAL does not monopolize resource specialties
+
+**Status:** Accepted
+
+Golden Sewer keeps only a mild Gold/MF flavor; Cosmic keeps a high-Tier flavor.
+
+Dedicated future RESOURCE dungeons should be the true destination for Gold / EXP / materials.
+
+### Why
+
+If Normal already contains the best Gold, EXP, rarity and Tier farms, future specialized dungeon categories have no meaningful role.
+
+---
+
+## D044 — Stable farming is player-selected
+
+**Status:** Accepted
+
+Normal allows fixed-floor farming on any reached floor.
+
+The game does not automatically lower the selected floor after deaths.
+
+### Why
+
+Choosing the highest floor that can be farmed safely is part of the idle-game decision layer. The system may later show safety information, but the final choice remains with the player.
+
+---
+
+## D045 — New gear records source dungeon
+
+**Status:** Accepted
+
+New items store source dungeon and source Dungeon LV. Affix rerolls use the source dungeon's Tier distribution.
+
+### Why
+
+Moving an item to Cosmic before rerolling should not convert a low-quality source item into Cosmic Tier odds.
+
+Pre-v2.4 items lack reliable source information and therefore retain legacy-compatible fallback behavior.
+
+---
+
 ## Open / Watch Items
 
 ### O001 — Item source dungeon

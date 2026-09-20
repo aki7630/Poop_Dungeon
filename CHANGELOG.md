@@ -10,6 +10,79 @@
 
 ---
 
+## v2.4.0 — Dungeon Structure
+
+ダンジョンを将来の NORMAL / EX / BOSS / RESOURCE 拡張へつなげられる構造へ再編。
+
+### ダンジョンLV
+
+- local floorとは別に、共通難易度指標 **ダンジョンLV** を導入
+- NORMALの攻略帯:
+  - 地下便所跡: LV 1–30
+  - 腐敗大聖堂: LV 31–60
+  - 浄化機関区: LV 61–90
+  - 黄金下水宮: LV 91–120
+  - 星間下水道: LV 121–150
+- Item Lv / 敵基礎HP・攻撃 / Gold / EXPはダンジョンLVを基準に計算
+- 深層 I / II / III は数値倍率ではなく表示上の区分へ変更
+- 敵HP・攻撃の成長係数は次回のLv / Gold成長再設計まで暫定値
+
+### NORMAL
+
+- 既存5ダンジョンをすべてNORMALへ整理
+- 1〜29F: 通常敵 / Elite
+- 30F: **初回のみ Final Boss**
+- Final Boss開始時にHP全回復
+- Final Bossに敗北しても30Fから再挑戦
+- Final Boss撃破でNORMAL CLEAR
+- CLEAR時に次のNORMALと対応Boss Dungeonを解放
+- CLEAR後は31F以降を無限に攻略可能
+- 到達済みの任意階層を指定して固定周回可能
+- Normal Elite率を全域 **8%** に統一
+
+### Boss Dungeon
+
+- 既存Boss周回を独立した **Boss Dungeon** へ移動
+- NORMAL Final Boss撃破で対応Boss Dungeon解放
+- Boss Dungeonでは毎戦HP全回復
+- 固有Legendary抽選 / PityはBoss Dungeonだけで進行
+- Normal Final Bossは固有Legendary抽選・Pityの対象外
+- Boss Dungeon初回撃破状態を記録
+
+### NORMAL報酬傾向
+
+NORMALは将来のResource Dungeonの役割を食わない範囲で差別化。
+
+- 黄金下水宮: Gold ×1.15 / Dungeon MF +2%
+- 星間下水道: Normal内最高のTier IV率 12%
+- Elite率は難易度スケーリングに利用しない
+
+Affix Tier分布:
+
+| Dungeon | I | II | III | IV |
+| --- | ---: | ---: | ---: | ---: |
+| 地下便所跡 | 50% | 32% | 14% | 4% |
+| 腐敗大聖堂 | 44% | 33% | 18% | 5% |
+| 浄化機関区 | 36% | 35% | 22% | 7% |
+| 黄金下水宮 | 42% | 34% | 19% | 5% |
+| 星間下水道 | 27% | 32% | 29% | 12% |
+
+### 装備出自
+
+- 新規装備に `sourceDungeon` と `sourceDungeonLv` を保存
+- Affix再抽選は、取得元ダンジョンが記録されている装備では取得元のTier分布を使用
+- Item Lvは取得時ダンジョンLV ±2
+
+### Save Migration
+
+- セーブ形式を **v2.4.0 / 240** へ更新
+- `POOP_DUNGEON_V240`
+- `POOPRPG240-`
+- v2.3.0以前の最高到達状況から、旧解放済みNORMALがロックされないようCLEAR状態を推定して移行
+- Legendary / Pity / 装備 / 倉庫 / 育成など既存データを維持
+
+---
+
 ## v2.3.0 — Legendary Overhaul
 
 Legendaryを「大きなステータス補正」から、戦闘や装備生成のルールそのものを変える固有装備へ刷新。

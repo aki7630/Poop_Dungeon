@@ -1,6 +1,6 @@
 # 💩 DUNGEON — SPEC
 
-Current specification for **v2.3.0**.
+Current specification for **v2.4.0**.
 
 このファイルは「現在のゲームがどう動くべきか」を記述する正本です。
 変更履歴は `CHANGELOG.md`、設計理由は `DECISIONS.md` を参照してください。
@@ -14,7 +14,7 @@ Current specification for **v2.3.0**.
 - Runtime: HTML + JavaScript
 - Battle: 完全自動
 - Canonical branch: `main`
-- Current version: **v2.3.0**
+- Current version: **v2.4.0**
 
 プレイヤーはダンジョンを選び、装備を掘り、Affix・Legendary・育成システムを組み合わせてより深い階層へ進む。
 
@@ -27,7 +27,7 @@ Current specification for **v2.3.0**.
 3. 敵を撃破
 4. Gold / XP / 装備 / 汚泥などを獲得
 5. 装備を比較・自動装備・厳選
-6. Bossを倒して深層へ進む
+6. NORMAL 30F Final Bossを一度倒してCLEARし、次のNORMALとBoss Dungeonを解放
 7. FLUSHで一部進行をリセットし、魂・Masteryなどの恒久成長を進める
 8. より強い装備・高Tier Affix・固有Legendaryを掘る
 
@@ -35,17 +35,123 @@ Current specification for **v2.3.0**.
 
 ## 3. Dungeons
 
-| ID | Name | Unlock | Tier I | Tier II | Tier III | Tier IV |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| `sewer` | 🚽 地下便所跡 | 1F | 50% | 32% | 14% | 4% |
-| `rot` | ☣️ 腐敗大聖堂 | 15F | 42% | 34% | 19% | 5% |
-| `machine` | ⚙️ 浄化機関区 | 30F | 32% | 35% | 25% | 8% |
-| `gold` | 👑 黄金下水宮 | 50F | 45% | 32% | 18% | 5% |
-| `cosmic` | 🌌 星間下水道 | 80F | 15% | 25% | 35% | 25% |
+### 3.1 Categories
 
-Affix Tier確率は**ダンジョンで決まり、装備レアリティとは独立**する。
+ダンジョン基盤は将来以下のカテゴリを扱う前提。
 
-各ダンジョンにはAffix biasがあり、その系統が候補プールへ追加される。
+- **NORMAL** — メイン進行 / 通常装備・EXP・Gold / 安定狩り
+- **EX** — 高難度攻略（将来追加）
+- **BOSS** — 単体Boss攻略・固有Legendary
+- **RESOURCE** — Gold / EXP / 素材などの専用周回（将来追加）
+
+v2.4.0で実装されているのはNORMALと既存5BossのBoss Dungeon。
+
+### 3.2 Dungeon LV
+
+プレイヤーには共通難易度を **ダンジョンLV** と表示する。
+
+NORMALでは:
+
+```
+Dungeon LV = baseLv + localFloor - 1
+```
+
+| ID | NORMAL | baseLv | 30F | Character |
+| --- | --- | ---: | ---: | --- |
+| `sewer` | 🚽 地下便所跡 | 1 | LV 30 | 標準 |
+| `rot` | ☣️ 腐敗大聖堂 | 31 | LV 60 | 高HP・低速 |
+| `machine` | ⚙️ 浄化機関区 | 61 | LV 90 | 低HP・高速 |
+| `gold` | 👑 黄金下水宮 | 91 | LV 120 | 少しGold / MF寄り |
+| `cosmic` | 🌌 星間下水道 | 121 | LV 150 | NORMAL内の高Tier狙い |
+
+local floorはそのダンジョン内の進行を示し、ダンジョンLVは敵基礎能力・Gold・EXP・Item Lvの共通尺度として使う。
+
+### 3.3 NORMAL progression
+
+各NORMALは共通して:
+
+- 1〜29F: 通常敵 / Elite
+- 30F: **Final Boss**
+- Final BossはNORMAL内では初回だけ出現
+- Final Boss開始時にHPを全回復
+- 敗北しても30Fから再挑戦
+- 撃破で `normalCleared[id] = true`
+- CLEAR時に次のNORMALと対応Boss Dungeonを解放
+- CLEAR後は31F以降へ無限に進行可能
+- CLEAR済み30Fは以後通常階層として扱う
+
+解放順:
+
+```
+地下便所跡
+→ 腐敗大聖堂
+→ 浄化機関区
+→ 黄金下水宮
+→ 星間下水道
+```
+
+### 3.4 NORMAL farm
+
+NORMALでは攻略進行とは別に、到達済みの任意local floorを固定周回できる。
+
+- `mode = progress`: 階層を進める
+- `mode = farm`: `farmFloors[id]` に固定
+- 未CLEARダンジョンでは30Fを周回指定できない
+- 周回中に死亡しても指定階層へ戻る
+- 周回勝利では `runFloor` / `best` を進めない
+
+目的は、死亡による効率低下を避けつつ、プレイヤーが自分で安定する狩場を選べるようにすること。
+
+### 3.5 Boss Dungeon
+
+対応NORMALのFinal Boss撃破で解放。
+
+- 雑魚戦なし
+- 既存Bossと連続再戦
+- 毎戦開始時HP全回復
+- Boss Dungeon勝利で `bossCleared[id]` を記録
+- 固有Legendary抽選とPityは **Boss Dungeonだけ**
+- NORMAL Final Bossは固有Legendary / Pity対象外
+
+Boss Dungeon LVは対応NORMAL 30Fと同じ。
+
+### 3.6 NORMAL modifiers
+
+NORMAL後半だからという理由だけの総合難易度倍率 `diff` は使用しない。
+進行による基礎強度はダンジョンLVが担当し、ダンジョン固有倍率は性格に限定する。
+
+| Dungeon | HP | ATK | Speed | Gold | Dungeon MF | Elite |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 地下便所跡 | ×1.00 | ×1.00 | ×1.00 | ×1.00 | +0% | 8% |
+| 腐敗大聖堂 | ×1.20 | ×0.95 | ×0.90 | ×1.00 | +0% | 8% |
+| 浄化機関区 | ×0.90 | ×1.00 | ×1.25 | ×1.00 | +0% | 8% |
+| 黄金下水宮 | ×1.05 | ×1.05 | ×1.00 | ×1.15 | +2% | 8% |
+| 星間下水道 | ×1.10 | ×1.08 | ×1.05 | ×1.00 | +0% | 8% |
+
+Elite率は難易度スケーリングには使わず、NORMAL全域8%。
+
+### 3.7 Tier chance
+
+| Dungeon | Tier I | Tier II | Tier III | Tier IV |
+| --- | ---: | ---: | ---: | ---: |
+| 地下便所跡 | 50% | 32% | 14% | 4% |
+| 腐敗大聖堂 | 44% | 33% | 18% | 5% |
+| 浄化機関区 | 36% | 35% | 22% | 7% |
+| 黄金下水宮 | 42% | 34% | 19% | 5% |
+| 星間下水道 | 27% | 32% | 29% | 12% |
+
+NORMALでTier IVを出しすぎず、将来のEX Dungeonへ高Tier報酬余地を残す。
+
+### 3.8 Provisional Dungeon LV curve
+
+v2.4.0ではプレイヤーLv / Goldアップグレード再設計前のため暫定値。
+
+- Enemy HP: `12 × 1.03^(DungeonLv-1) × (1 + DungeonLv×0.006)` を基礎
+- Enemy ATK: `1.8 × 1.018^(DungeonLv-1)` を基礎
+
+次の成長システム再設計後に本調整する。
+`深層 I / II / III` は現在、追加倍率ではなく表示上の区分。
+
 
 ---
 
@@ -166,6 +272,9 @@ Legacyのみ:
 
 Affix再抽選では、選択した1個だけを再抽選する。
 固有LegendaryロールはAffix再抽選の対象外。
+
+v2.4.0以降に生成した装備は `sourceDungeon` / `sourceDungeonLv` を記録し、取得元が分かる装備のAffix再抽選は取得元ダンジョンのTier分布を使用する。
+Item Lvは原則として取得時ダンジョンLV ±2。
 
 ---
 
@@ -332,7 +441,8 @@ chance = 1.5% + 0.05% × pity + 0.5% × MF
 
 - 成功時 Pity = 0
 - 失敗時 Pity +1
-- 各ダンジョンは1種類だけなので、成功時はそのダンジョン固有Legendary確定
+- 各Boss Dungeonは1種類だけなので、成功時は対応Bossの固有Legendary確定
+- この抽選はBoss Dungeonでのみ行い、NORMAL Final Bossでは行わない
 
 目安:
 - MF 0%: 平均 約35.63 Boss
@@ -444,16 +554,27 @@ NEW:
 ## 15. Save
 
 Current:
-- Local key: `POOP_DUNGEON_V230`
-- Export prefix: `POOPRPG230-`
-- Payload version: `230`
+- Local key: `POOP_DUNGEON_V240`
+- Export prefix: `POOPRPG240-`
+- Payload version: `240`
 
 v2.1.1以降の対応形式を移行可能。
+
+v2.3.0以前からの移行では、旧ダンジョン解放条件を参照してNORMAL CLEAR状態を推定し、以前アクセスできた主要コンテンツが再ロックされないようにする。
+
+保存対象:
+- NORMAL進行 / 最高到達
+- `normalCleared`
+- NORMAL指定周回階層 `farmFloors`
+- Boss Dungeon初回撃破 `bossCleared`
+- Boss Legendary Pity
+- 装備 / Legendary Reserve / collection / 育成
 
 保存時:
 - battle中のenemyは保存しない
 - pauseは解除状態として保存
 - dead stateは復元時に初期化
+
 
 ---
 
@@ -462,6 +583,8 @@ v2.1.1以降の対応形式を移行可能。
 - 最大8時間
 - 現在装備・成長・DPSを基に報酬を計算
 - Legendary期待DPSも評価値へ含める
+- NORMAL攻略 / 指定周回 / Boss Dungeonの現在モードを参照して安定地点を計算
+- オフライン生成装備のItem LvはダンジョンLV基準
 
 ---
 
@@ -490,7 +613,7 @@ v2.1.1以降の対応形式を移行可能。
 
 - `index.html` — shell / static UI
 - `js/data.js` — definitions, state, migration, stat calculation
-- `js/items.js` — enemy/item generation, drops, GOLDEN, inventory routing
+- `js/items.js` — enemy/item generation, Dungeon LV scaling, drops, GOLDEN, inventory routing
 - `js/combat.js` — combat, procs, kill/death
 - `js/progression.js` — item actions, growth, FLUSH
 - `js/ui.js` — rendering, comparison, records, offline UI
@@ -510,6 +633,12 @@ v2.1.1以降の対応形式を移行可能。
 - `$('.foo').forEach` のような誤った単一selector複数処理がない
 - old save migration
 - current save round-trip
+- v2.3.0 → v2.4.0 NORMAL CLEAR migration
+- 30F Final Bossが初回だけ出現し、開始時全回復
+- Final Boss撃破で次NORMAL / Boss Dungeonが解放される
+- Normal Final BossでLegendary Pityが進まない
+- Boss DungeonでのみLegendary Pityが進む
+- 指定階層周回でrunFloor / bestが進まない
 - Proc再帰がない
 - unique Legendary action counterがHit数で増えない
 - GOLDENがTier IVを超えない

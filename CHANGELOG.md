@@ -10,6 +10,91 @@
 
 ---
 
+## v2.4.0 — Dungeon Framework
+
+ダンジョンを将来の NORMAL / EX / BOSS / RESOURCE へ拡張できる共通基盤へ再編。
+
+### NORMAL Dungeon
+
+- 既存5ダンジョンをすべて **NORMAL** として整理
+- 各Normalは **30FでCLEAR**
+- 1〜29Fは通常敵・Elite
+- **30Fのみ初回Final Boss**
+- Final Boss突入時にHPを全回復
+- Final Boss撃破でNormal CLEAR
+- CLEARすると次のNormalと、対応するBoss Dungeonを解放
+- CLEAR後は31F以降の無限深層へ進行可能
+- CLEAR済みでも30Fを通常周回した場合、Final Bossは再出現しない
+
+### ダンジョンLV
+
+ローカル階層とは別に、全コンテンツ共通の難易度尺度 **ダンジョンLV** を導入。
+
+| Normal | 1F | 30F |
+| --- | ---: | ---: |
+| 🚽 地下便所跡 | LV 1 | LV 30 |
+| ☣️ 腐敗大聖堂 | LV 31 | LV 60 |
+| ⚙️ 浄化機関区 | LV 61 | LV 90 |
+| 👑 黄金下水宮 | LV 91 | LV 120 |
+| 🌌 星間下水道 | LV 121 | LV 150 |
+
+敵HP・攻撃・Gold・EXP・Item Lvの基準をローカル階層からダンジョンLVへ移行。
+最終的な成長曲線は次回のLv / Goldアップグレード再設計で再調整予定。
+
+### 攻略 / 指定階層周回
+
+Normalに2つの遊び方を追加。
+
+- **攻略**: 現在階層を進めて最高到達を更新
+- **指定階層周回**: 到達済みの任意階層を固定して安定狩り
+
+これにより、死亡ロスを避けながらEXP / Gold / Mythicなどを狙う適正狩場を自分で選択可能。
+
+### BOSS Dungeon
+
+- 対応Normal CLEARで解放
+- 既存5Bossを独立したBoss Dungeonへ移行
+- 毎戦HP満タンから開始
+- 何度でも再戦・周回可能
+- 固有Legendary抽選とPityをBoss Dungeonへ移管
+- Normalの初回Final Bossでは固有Legendary抽選を行わない
+
+### Normalの個性
+
+後半Normalを単純な上位互換にしない方針へ変更。
+
+- Dungeon LVが基礎難易度を担当
+- Dungeon固有倍率は戦闘上の個性だけを担当
+- Elite率は全Normal **8%**
+- 黄金下水宮のみ軽いGold / MF補正
+- 星間下水道はNormal内の高Tier特化
+- 深層I/II/IIIは追加数値倍率ではなくDungeon LV帯の表示区分
+
+Normal用Tier IV率:
+
+- 地下便所跡 4%
+- 腐敗大聖堂 5%
+- 浄化機関区 7%
+- 黄金下水宮 5%
+- 星間下水道 12%
+
+### 装備生成
+
+- 新規装備に `sourceDungeon` / `sourceDungeonLv` を保存
+- Item LvをダンジョンLV基準へ変更
+- 新規装備のAffix再抽選は取得元ダンジョンのTier分布を使用
+- v2.3以前の取得元情報を持たない旧装備はLegacy互換動作を維持
+
+### セーブ移行
+
+- Save payload: **240**
+- Local key: `POOP_DUNGEON_V240`
+- Export prefix: `POOPRPG240-`
+- v2.3.0以前の対応コードを移行可能
+- 旧ダンジョン解放状況を参照し、アップデートでNormalアクセスが巻き戻らないようCLEAR状態を補完
+
+---
+
 ## v2.3.0 — Legendary Overhaul
 
 Legendaryを「大きなステータス補正」から、戦闘や装備生成のルールそのものを変える固有装備へ刷新。

@@ -88,6 +88,9 @@ Each Normal:
 Normal supports two modes:
 - **攻略** — advance current floor
 - **指定階層周回** — repeatedly fight on any reached floor without advancing
+- 未CLEAR時の30FはFinal Boss専用で、固定周回には指定できない
+- 周回中に死亡しても攻略用 `runFloor` は変化しない
+- Final Bossに敗北した場合は30Fから再挑戦
 
 ### 3.4 Boss Dungeon
 
@@ -600,6 +603,9 @@ v2.1.1以降の対応形式を移行可能。
 - `$$('.sim-speed').forEach` が保たれている
 - `$('.foo').forEach` のような誤った単一selector複数処理がない
 - old save migration
+- 未CLEAR 30Fを固定周回できない
+- Final Boss敗北時に30Fを維持
+- farm死亡で攻略階層を変更しない
 - current save round-trip
 - Proc再帰がない
 - unique Legendary action counterがHit数で増えない
